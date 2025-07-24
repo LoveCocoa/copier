@@ -120,11 +120,6 @@ def main():
             df = pd.read_excel(uploaded_file)
             processed_df = process_excel(df)
             
-            # Show preview
-            st.success("File processed successfully!")
-            st.subheader("Preview of Processed Data")
-            st.dataframe(processed_df.head(), use_container_width=True)
-            
             # Create formatted Excel output
             output = BytesIO()
             with pd.ExcelWriter(output, engine='openpyxl') as writer:
