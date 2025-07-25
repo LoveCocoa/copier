@@ -96,8 +96,12 @@ def process_excel(df):
     df["System"] = np.where(is_sw, "Track switch", "YM" + last_two)
     df["Week"] = df["Malfunction Start"].apply(date_to_week)
     df["Problem"] = df["Description"].apply(classify_text)
-    df["Malfunction Start"] = pd.to_datetime(df["Malfunction Start"]).dt.strftime("%d/%m/%Y")
-    df["Malfunction End"] = pd.to_datetime(df["Malfunction End"]).dt.strftime("%d/%m/%Y")
+    # Keep original as datetime
+    df["Malfunction Start"] = pd.to_datetime(df["Malfunction Start"])
+    # Format only for display/export
+    df["Malfunction Start (Formatted)"] = df["Malfunction Start"].dt.strftime("%d/%m/%Y")
+    df["Malfunction End"] = pd.to_datetime(df["Malfunction End"])
+    df["Malfunction End (Formatted)"] = df["Malfunction End"].dt.strftime("%d/%m/%Y")
     df["Sub-system - Functional location"] = df["Functional Location"].apply(get_code_text)
     # Column reordering
     cols = df.columns.tolist()
