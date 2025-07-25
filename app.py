@@ -149,12 +149,6 @@ def main():
                 
                 # Add the table to the worksheet
                 worksheet.add_table(tab)
-                if "Malfunction Start" in processed_df.columns:
-                    col_idx = processed_df.columns.get_loc("Malfunction Start") + 1  # openpyxl is 1-based
-                    for row in worksheet.iter_rows(min_row=2, max_row=worksheet.max_row, min_col=col_idx, max_col=col_idx):
-                        for cell in row:
-                            if isinstance(cell.value, (pd.Timestamp,)):
-                                cell.number_format = numbers.FORMAT_DATE_DMY4 
                 
                 # Auto-adjust column widths
                 for column in worksheet.columns:
