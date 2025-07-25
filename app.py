@@ -98,10 +98,7 @@ def process_excel(df):
     df["Problem"] = df["Description"].apply(classify_text)
     # Keep original as datetime
     df["Malfunction Start"] = pd.to_datetime(df["Malfunction Start"])
-    # Format only for display/export
-    df["Malfunction Start (Formatted)"] = df["Malfunction Start"].dt.strftime("%d/%m/%Y")
     df["Malfunction End"] = pd.to_datetime(df["Malfunction End"])
-    df["Malfunction End (Formatted)"] = df["Malfunction End"].dt.strftime("%d/%m/%Y")
     df["Sub-system - Functional location"] = df["Functional Location"].apply(get_code_text)
     # Column reordering
     cols = df.columns.tolist()
@@ -126,9 +123,8 @@ def main():
             
             # Create formatted Excel output
             output = BytesIO()
-            with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            with pd.ExcelWriter(output, engine='openpyxl', datetime_format="DD/MM/YYYY") as writer:
                 processed_df.to_excel(writer, index=False, sheet_name="Processed Data")
-                
                 # Access the workbook and worksheet for formatting
                 workbook = writer.book
                 worksheet = writer.sheets["Processed Data"]
