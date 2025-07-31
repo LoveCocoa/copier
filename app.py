@@ -1,12 +1,12 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from datetime import timedelta
+from datetime import timedelta, datetime
 import calendar
 from io import BytesIO
 import openpyxl
 from openpyxl.worksheet.table import Table, TableStyleInfo
-import numbers
+from openpyxl.utils import get_column_letter
 import re
 
 def date_to_week(date):
@@ -90,6 +90,18 @@ def classify_text(text):
     return None  # If no match
 
 def process_excel(df):
+    # Get today's date (as datetime)
+    today = datetime.today()
+
+    # Get start and end of the current week (Fri–Thurs)
+    offset = (today.weekday() - 4) % 7  # 4 = Friday
+    start_of_week = today - timedelta(days=offset)
+    end_of_week = start_of_week + timedelta(days=6)
+
+    # Filter using datetime comparisons (no .date() conversion)
+    df = df[
+        (df['Malfunction Start'].dt.date >= start_of_week.date()) &
+        (df['Malfunction Start'].dt.date <= end_of_week.date())]
     # Processing logic (unchanged)
     s = df["Location"].astype(str).str
     last_two = s[-2:]
@@ -97,16 +109,25 @@ def process_excel(df):
     df["System"] = np.where(is_sw, "Track switch", "YM" + last_two)
     df["Week"] = df["Malfunction Start"].apply(date_to_week)
     df["Problem"] = df["Description"].apply(classify_text)
+    df["Sub-system - Revised"]=""
+    df["Type"]=""
+    df["Root cause"]=""
+    df["Corrective action"]=""
+    df["Additional Description of Action"]=""
     # Keep original as datetime
     df["Malfunction Start"] = pd.to_datetime(df["Malfunction Start"])
     df["Malfunction End"] = pd.to_datetime(df["Malfunction End"])
     df["Sub-system - Functional location"] = df["Functional Location"].apply(get_code_text)
     # Column reordering
     cols = df.columns.tolist()
-    cols.insert(5, cols.pop(cols.index("System")))
-    cols.insert(11, cols.pop(cols.index("Week")))
     cols.insert(6, cols.pop(cols.index("Sub-system - Functional location")))
-    cols.insert(7, cols.pop(cols.index("Problem")))
+    cols.insert(7, cols.pop(cols.index("Sub-system - Revised")))
+    cols.insert(8, cols.pop(cols.index("Type")))
+    cols.insert(9, cols.pop(cols.index("Problem")))
+    cols.insert(10, cols.pop(cols.index("Root cause")))
+    cols.insert(11, cols.pop(cols.index("Corrective action")))
+    cols.insert(12, cols.pop(cols.index("Additional Description of Action")))
+    cols.insert(18, cols.pop(cols.index("Week")))
     df = df[cols]
     return df
 
@@ -130,12 +151,15 @@ def main():
                 workbook = writer.book
                 worksheet = writer.sheets["Processed Data"]
                 
-                # Define the table range
-                max_row, max_col = processed_df.shape
-                table_range = f"A1:{chr(64 + max_col)}{max_row + 1}"
+                 # Define the table range
+                last_row = worksheet.max_row
+                last_col = worksheet.max_column
+                end_col_letter = openpyxl.utils.get_column_letter(last_col)
+                table_range = f"A1:{end_col_letter}{last_row}"
                 
                 # Create table with proper syntax
-                tab = openpyxl.worksheet.table.Table(displayName="ProcessedTable", ref=table_range)
+                tab = openpyxl.worksheet.table.Table(displayName="MyTable", ref=table_range)
+                worksheet.add_table(tab)
                 
                 # Add style to the table
                 style = openpyxl.worksheet.table.TableStyleInfo(
