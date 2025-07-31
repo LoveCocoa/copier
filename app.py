@@ -127,7 +127,7 @@ def process_excel(df):
     cols.insert(10, cols.pop(cols.index("Root cause")))
     cols.insert(11, cols.pop(cols.index("Corrective action")))
     cols.insert(12, cols.pop(cols.index("Additional Description of Action")))
-    cols.insert(18, cols.pop(cols.index("Week")))
+    cols.insert(17, cols.pop(cols.index("Week")))
     df = df[cols]
     return df
 
