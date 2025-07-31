@@ -108,8 +108,8 @@ def process_excel(df):
     is_sw = df["Description"].str.contains('SW', case=False, na=False)
     #not make table consider dash/- as formula
     df["Location"] = df["Location"].apply(
-    lambda x: f'"{x}"' if isinstance(x, str) and x.strip().startswith('-') else x)
-    
+    lambda x: f"'{x}" if isinstance(x, str) and x.strip().startswith('-') else x)
+
     df["System"] = np.where(is_sw, "Track switch", "YM" + last_two)
     df["Week"] = df["Malfunction Start"].apply(date_to_week)
     df["Problem"] = df["Description"].apply(classify_text)
