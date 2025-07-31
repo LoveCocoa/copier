@@ -159,7 +159,6 @@ def main():
                 
                 # Create table with proper syntax
                 tab = openpyxl.worksheet.table.Table(displayName="MyNewTable", ref=table_range)
-                worksheet.add_table(tab)
                 
                 # Add style to the table
                 style = openpyxl.worksheet.table.TableStyleInfo(
