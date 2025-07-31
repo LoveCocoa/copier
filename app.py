@@ -158,7 +158,7 @@ def main():
                 table_range = f"A1:{end_col_letter}{last_row}"
                 
                 # Create table with proper syntax
-                tab = openpyxl.worksheet.table.Table(displayName="MyTable", ref=table_range)
+                tab = openpyxl.worksheet.table.Table(displayName="MyNewTable", ref=table_range)
                 worksheet.add_table(tab)
                 
                 # Add style to the table
