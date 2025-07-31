@@ -120,6 +120,7 @@ def process_excel(df):
     df["Sub-system - Functional location"] = df["Functional Location"].apply(get_code_text)
     # Column reordering
     cols = df.columns.tolist()
+    cols.insert(5, cols.pop(cols.index("System")))
     cols.insert(6, cols.pop(cols.index("Sub-system - Functional location")))
     cols.insert(7, cols.pop(cols.index("Sub-system - Revised")))
     cols.insert(8, cols.pop(cols.index("Type")))
