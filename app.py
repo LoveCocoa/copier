@@ -88,6 +88,31 @@ def classify_text(text):
         if pattern.search(text):
             return category
     return None  # If no match
+#rule for type classification
+type_rules = {
+    'CM':['Front', 'CCD back', 'TWP', 'Guide tire warning','steering','Malfunction'],
+    'FC':['ground', 'power', 'inspection', 'checklist'],
+    'MOD':['add','fco'],
+    'P-CM':['IW','Guide tire worn out', 'axle','CCD worn out'],
+    'PREP':['standby','headset','shunting','borrow']
+}
+ # pre-compile type patterns for speed
+compiled_type_patterns = {}
+for type_category, type_keywords in type_rules.items():
+    # Use alternation (|) instead of positive lookahead for OR matching
+    # Add word boundaries \b to match whole words
+    escaped_keywords = [re.escape(keyword) for keyword in type_keywords]
+    type_pattern = r'\b(' + '|'.join(escaped_keywords) + r')\b'
+    compiled_type_patterns[type_category] = re.compile(type_pattern, flags=re.IGNORECASE)
+
+def get_type_from_text(text):
+    if pd.isna(text):
+        return None
+    text = str(text).lower()
+    for type_category, type_pattern in compiled_type_patterns.items():
+        if type_pattern.search(text):
+            return type_category
+    return None  # If no match
 
 def process_excel(df):
     # Get today's date (as datetime)
@@ -114,7 +139,7 @@ def process_excel(df):
     df["Week"] = df["Malfunction Start"].apply(date_to_week)
     df["Problem"] = df["Description"].apply(classify_text)
     df["Sub-system - Revised"]=""
-    df["Type"]=""
+    df["Type"]= df["Description"].apply(get_type_from_text)
     df["Root cause"]=""
     df["Corrective action"]=""
     df["Additional Description of Action"]=""
