@@ -93,7 +93,7 @@ type_rules = {
     'CM':['Front', 'CCD back', 'TWP', 'Guide tire warning','steering','Malfunction'],
     'FC':['ground', 'power', 'inspection', 'checklist'],
     'MOD':['add','fco'],
-    'P-CM':['IW','Guide tire worn out', 'axle','CCD worn out'],
+    'P-CM':['IW','worn out', 'axle'],
     'PREP':['standby','headset','shunting','borrow']
 }
  # pre-compile type patterns for speed
