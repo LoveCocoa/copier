@@ -70,7 +70,8 @@ rules = {
     'Steering Cylinder warning':['steering','warning'],
     'Water dripping':['water','drip'],
     'Wheel Arc':['Allcar','arc'],
-    'Wheel well door lock braket':['bracket']
+    'Wheel well door lock braket':['bracket'],
+    'N/A':['clean']
     }
 # Pre-compile regex patterns for speed
 compiled_patterns = {}
@@ -90,11 +91,12 @@ def classify_text(text):
     return None  # If no match
 #rule for type classification
 type_rules = {
-    'CM':['Front', 'CCD back', 'TWP', 'Guide tire warning','steering','Malfunction'],
+    'CM':['Front', 'CCD back', 'TWP', 'Guide tire warning','Malfunction','fault','dirt','damage','lock out','ultrasonic sensor'],
     'FC':['ground', 'power', 'inspection', 'checklist'],
     'MOD':['add','fco'],
     'P-CM':['IW','worn out', 'axle'],
-    'PREP':['standby','headset','shunting','borrow']
+    'PM':['clean'],
+    'PREP':['standby','headset','shunting','borrow','swap']
 }
  # pre-compile type patterns for speed
 compiled_type_patterns = {}
@@ -135,7 +137,7 @@ def process_excel(df):
     df["Location"] = df["Location"].apply(
     lambda x: f"'{x}" if isinstance(x, str) and x.strip().startswith('-') else x)
 
-    df["System"] = np.where(is_sw, "Track switch", "YM" + last_two)
+    df["System"] = ""
     df["Week"] = df["Malfunction Start"].apply(date_to_week)
     df["Problem"] = df["Description"].apply(classify_text)
     df["Sub-system - Revised"]=""
