@@ -16,8 +16,8 @@ def date_to_week(date):
     friday = dt - timedelta(days=days_since_friday)
     week_start = friday
     week_end = friday + timedelta(days=6)
-    week_start_str = f"{week_start.day:02d} {calendar.month_name[week_start.month]}"
-    week_end_str = f"{week_end.day:02d} {calendar.month_name[week_end.month]}"
+    week_start_str = f"{week_start.day:02d} {calendar.month_name[week_start.month]} {week_start.year}"
+    week_end_str = f"{week_end.day:02d} {calendar.month_name[week_end.month]} {week_end.year}"
     return f"{week_start_str} - {week_end_str}"
 #insert data dictionary for functional location code
 code_to_text = {
