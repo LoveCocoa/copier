@@ -91,10 +91,10 @@ def classify_text(text):
     return None  # If no match
 #rule for type classification
 type_rules = {
-    'CM':['Front', 'CCD back', 'TWP', 'Guide tire warning','Malfunction','fault','dirt','damage','lock out','ultrasonic sensor'],
+    'CM':['front', 'ccd back', 'twp', 'guide tire warning','malfunction','fault','dirt','damage','lock out','ultrasonic sensor'],
     'FC':['ground', 'power', 'inspection', 'checklist'],
     'MOD':['add','fco'],
-    'P-CM':['IW','worn out', 'axle'],
+    'P-CM':['iw','worn out', 'axle'],
     'PM':['clean'],
     'PREP':['standby','headset','shunting','borrow','swap']
 }
