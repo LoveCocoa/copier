@@ -120,10 +120,10 @@ def process_excel(df):
     # Get today's date (as datetime)
     today = datetime.today()
 
-    # Get start and end of the current week (Fri–Thurs)
-    offset = (today.weekday() - 4) % 7  # 4 = Friday
+    # Get start and end of the current week (Thu–Fri, 8 days)
+    offset = (today.weekday() - 3) % 7  # 3 = Thursday
     start_of_week = today - timedelta(days=offset)
-    end_of_week = start_of_week + timedelta(days=6)
+    end_of_week = start_of_week + timedelta(days=7)  # 8 days total (Thu to Fri inclusive)
 
     # Filter using datetime comparisons (no .date() conversion)
     df = df[
