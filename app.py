@@ -123,7 +123,7 @@ def process_excel(df):
     # Get start and end of the current week (Thu–Fri, 8 days)
     offset = (today.weekday() - 3) % 7  # 3 = Thursday
     start_of_week = today - timedelta(days=offset)
-    end_of_week = start_of_week + timedelta(days=7)  # 8 days total (Thu to Fri inclusive)
+    end_of_week = start_of_week + timedelta(days=6)  # 8 days total (Thu to Fri inclusive)
 
     # Filter using datetime comparisons (no .date() conversion)
     df = df[
