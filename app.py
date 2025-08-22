@@ -91,7 +91,7 @@ def classify_text(text):
     return None  # If no match
 #rule for type classification
 type_rules = {
-    'CM':['front', 'ccd back', 'twp', 'guide tire warning','malfunction','fault','dirt','damage','lock out','ultrasonic sensor'],
+    'CM':['front', 'ccd back', 'twp', 'guide tire warning','malfunction','fault','dirt','damage','lock out','ultrasonic sensor','crack'],
     'FC':['ground', 'power', 'inspection', 'checklist'],
     'MOD':['add','fco'],
     'P-CM':['iw','worn out', 'axle'],
@@ -121,7 +121,7 @@ def process_excel(df):
     today = datetime.today()
 
     #* Get start and end of the current week (Fri–Thurs)*
-    offset = (today.weekday() - 3) % 7 #* 4 = Friday*
+    offset = (today.weekday() - 4) % 7 #* 4 = Friday*
     start_of_week = today - timedelta(days=offset)
     end_of_week = start_of_week + timedelta(days=6)
 
