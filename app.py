@@ -116,39 +116,43 @@ def get_type_from_text(text):
             return type_category
     return None  # If no match
 
-def process_excel(df):
-    # Get today's date (as datetime)
-    today = datetime.today()
-
-    #* Get start and end of the current week (Fri–Thurs)*
-    offset = (today.weekday() - 4) % 7 #* 4 = Friday*
-    start_of_week = today - timedelta(days=offset)
-    end_of_week = start_of_week + timedelta(days=6)
-
-    # Filter using datetime comparisons (no .date() conversion)
-    df = df[
-        (df['Malfunction Start'].dt.date >= start_of_week.date()) &
-        (df['Malfunction Start'].dt.date <= end_of_week.date())]
+def process_excel(df, notification_number=None):
+    # Filter from notification number to last row if notification_number is provided
+    if notification_number and notification_number.strip():
+        # Find the row with the notification number
+        notification_mask = df['Notification'].astype(str).str.contains(notification_number.strip(), case=False, na=False)
+        if notification_mask.any():
+            # Get the index of the first occurrence of the notification number
+            start_index = df[notification_mask].index[0]
+            # Filter from this notification to the end
+            df = df.loc[start_index:]
+        else:
+            # If notification number not found, show warning but continue with all data
+            st.warning(f"⚠️ Notification number '{notification_number}' not found in the data. Processing all records.")
+    
     # Processing logic (unchanged)
     s = df["Location"].astype(str).str
     last_two = s[-2:]
     is_sw = df["Description"].str.contains('SW', case=False, na=False)
-    #not make table consider dash/- as formula
+    
+    # Not make table consider dash/- as formula
     df["Location"] = df["Location"].apply(
-    lambda x: f"'{x}" if isinstance(x, str) and x.strip().startswith('-') else x)
-
+        lambda x: f"'{x}" if isinstance(x, str) and x.strip().startswith('-') else x)
+    
     df["System"] = ""
     df["Week"] = df["Malfunction Start"].apply(date_to_week)
     df["Problem"] = df["Description"].apply(classify_text)
-    df["Sub-system - Revised"]=""
-    df["Type"]= df["Description"].apply(get_type_from_text)
-    df["Root cause"]=""
-    df["Corrective action"]=""
-    df["Additional Description of Action"]=""
+    df["Sub-system - Revised"] = ""
+    df["Type"] = df["Description"].apply(get_type_from_text)
+    df["Root cause"] = ""
+    df["Corrective action"] = ""
+    df["Additional Description of Action"] = ""
+    
     # Keep original as datetime
     df["Malfunction Start"] = pd.to_datetime(df["Malfunction Start"])
     df["Malfunction End"] = pd.to_datetime(df["Malfunction End"])
     df["Sub-system - Functional location"] = df["Functional Location"].apply(get_code_text)
+    
     # Column reordering
     cols = df.columns.tolist()
     cols.insert(5, cols.pop(cols.index("System")))
@@ -161,11 +165,21 @@ def process_excel(df):
     cols.insert(12, cols.pop(cols.index("Additional Description of Action")))
     cols.insert(17, cols.pop(cols.index("Week")))
     df = df[cols]
+    
     return df
 
 def main():
     st.set_page_config(page_title="Excel Processor", layout="wide")
     st.title("📊 Excel File Processor")
+
+    # Add notification number input with smaller width
+    col1, col2 = st.columns([1, 3])
+    with col1:
+        notification_number = st.text_input(
+            "📋 Notification Number", 
+            placeholder="",
+            help="Enter the notification number"
+        )
     
     uploaded_file = st.file_uploader("Choose an Excel file", type=['xlsx', 'xls'])
     
@@ -173,17 +187,18 @@ def main():
         try:
             # Read and process file
             df = pd.read_excel(uploaded_file)
-            processed_df = process_excel(df)
+            processed_df = process_excel(df, notification_number)
             
             # Create formatted Excel output
             output = BytesIO()
             with pd.ExcelWriter(output, engine='openpyxl', datetime_format="DD/MM/YYYY") as writer:
                 processed_df.to_excel(writer, index=False, sheet_name="Processed Data")
+                
                 # Access the workbook and worksheet for formatting
                 workbook = writer.book
                 worksheet = writer.sheets["Processed Data"]
                 
-                 # Define the table range
+                # Define the table range
                 last_row = worksheet.max_row
                 last_col = worksheet.max_column
                 end_col_letter = openpyxl.utils.get_column_letter(last_col)
@@ -217,6 +232,10 @@ def main():
                             pass
                     adjusted_width = (max_length + 2)
                     worksheet.column_dimensions[column_letter].width = adjusted_width
+            
+            # Show notification number in the interface if provided
+            if notification_number:
+                st.info(f"📋 Processing with Notification Number: {notification_number}")
             
             # Download button
             st.download_button(
